@@ -1,0 +1,76 @@
+{% if settings.limitProducts %}
+    {% set limitProducts = settings.limitProducts %}
+{% else %}
+    {% set limitProducts = 12 %}
+{% endif %}
+
+{% if settings.showcase == "featured" %}
+    {% set showcaseText = Translation('destaques') %}
+{% elseif settings.showcase == "new" %}
+    {% set showcaseText = Translation('lancamentos') %}
+{% elseif settings.showcase == "free_shipping" %}
+    {% set showcaseText = Translation('frete_gratis_min') %}
+{% elseif settings.showcase == "promotion" %}
+    {% set showcaseText = Translation('promocoes') %}
+{% elseif settings.showcase == "top_seller" %}
+    {% set showcaseText = Translation('mais_vendidos') %}
+{% endif %}
+
+{% if settings.showcase == "top_seller" %}
+    <div id="prognoos_popv1"></div>	
+    {% set products = Products({
+        'filter': 'available',
+        'limit': limitProducts,
+        'order': {'quantity_sold': 'desc'}
+    }) %}
+{% else %}
+    {% set products = Products({
+        'filter': settings.showcase,
+        'limit': limitProducts,
+        'order': 'rand'
+    }) %}
+{% endif %}
+
+{% if banner.home and pages.current == 'home' %} 
+    {% if not banners.home.slides %}
+        <div class="box-banner">
+            <div class="banner banner-home {% if not settings.enable_banner_home %}mobile-off{% endif %}">
+                {{ banner.home }}
+            </div>
+        </div>
+    {% else %}
+        <div class="banner-home {% if not settings.enable_banner_home %}mobile-off{% endif %}" id="home-slider">
+            {% for slide in banners.home.slides %}
+                <a href="{{ slide.link }}" target="{{ slide.target }}">
+                    <img src="{{ slide.image }}" alt="{{ slide.label }}">
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %} 
+{% endif %}
+
+<!--banner regua -->
+{% if not utils.is_mobile and banner.extra1 %}
+    <div class="banner banner-ruler">
+        {{ banner.extra1 }}
+    </div>
+{% elseif utils.is_mobile and banner.extra8 %}
+    <div class="banner banner-ruler">
+        {{ banner.extra8 }}
+    </div>
+{% endif %} 
+                    
+{% element 'showcase' { 
+    "products": products,
+    "showcaseTitle": showcaseText
+} %}
+
+{% if banner.bottom %}
+    <div class="banner banner-bottom {% if not settings.enable_banner_default %}mobile-off{% endif %}">
+        {{ banner.bottom }}
+    </div>
+{% endif %}
+
+{% if pages.current == 'home' %}
+	{{ banner.popup ~ banner.floating }}
+{% endif %}
